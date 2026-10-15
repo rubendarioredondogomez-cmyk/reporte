@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Estadístico de Gestión *611</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-900 text-white p-6">
+  
+  <!-- Encabezado Corporativo -->
+  <header class="flex justify-between items-center mb-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
+    <div>
+      <h1 class="text-xl font-bold text-blue-400">EPSDC-ATE "JOSEFA CAMEJO"</h1>
+      <p class="text-sm text-slate-400">Reporte Estadístico de Gestión *611 — Acumulado al <span id="fecha-corte">...</span></p>
+    </div>
+    <div class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-semibold">
+      ● En vivo (Google Sheets Connected)
+    </div>
+  </header>
+
+  <!-- Tarjetas de KPI Rápidos -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <span class="text-slate-400 text-xs">Llamadas Acumuladas</span>
+      <p id="kpi-llamadas" class="text-2xl font-bold mt-1">0</p>
+    </div>
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <span class="text-slate-400 text-xs">Nivel de Servicio</span>
+      <p id="kpi-ns" class="text-2xl font-bold text-emerald-400 mt-1">0%</p>
+    </div>
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <span class="text-slate-400 text-xs">% Abandono Total</span>
+      <p id="kpi-abandono" class="text-2xl font-bold text-blue-400 mt-1">0%</p>
+    </div>
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <span class="text-slate-400 text-xs">Agentes Activos</span>
+      <p id="kpi-agentes" class="text-2xl font-bold mt-1">0</p>
+    </div>
+  </div>
+
+  <!-- Contenedor de Gráficos -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <h3 class="text-sm font-semibold mb-3">Precisión de Pronóstico vs Realidad</h3>
+      <canvas id="chartPronostico"></canvas>
+    </div>
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <h3 class="text-sm font-semibold mb-3">Ocupación y Productividad por Servicio</h3>
+      <canvas id="chartOcupacion"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwzxy0CmrLBWRT3Y9riK2n-PLbQZxXKwbu463JVUL08tfqQqWgE3qWWgOlN7-3Q3Gyq/exec";
+
+    async function cargarDatos() {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+
+      document.getElementById('fecha-corte').innerText = data.fecha;
+      document.getElementById('kpi-llamadas').innerText = (data.acumulado.prepago.recibidas + data.acumulado.suspensiones.recibidas).toLocaleString();
+      document.getElementById('kpi-ns').innerText = (data.acumulado.prepago.nivel_servicio * 100).toFixed(2) + '%';
+      document.getElementById('kpi-abandono').innerText = (data.acumulado.prepago.abandono * 100).toFixed(2) + '%';
+      document.getElementById('kpi-agentes').innerText = data.acumulado.prepago.agentes + data.acumulado.suspensiones.agentes;
+
+      // Inicializar / Actualizar Gráficos Chart.js aquí...
+    }
+
+    cargarDatos();
+  </script>
+</body>
+</html>
