@@ -93,11 +93,34 @@
   </div>
 
   <script>
-    // REEMPLAZA ESTA URL CON TU ENDPOINT DE GOOGLE APPS SCRIPT
-    const API_URL = "https://script.google.com/macros/s/AKfycbwzxy0CmrLBWRT3Y9riK2n-PLbQZxXKwbu463JVUL08tfqQqWgE3qWWgOlN7-3Q3Gyq/exec";
+    // COLOCA AQUÍ TU URL DE GOOGLE APPS SCRIPT (MANTIENE LA MISMA QUE YA TENÍAS)
+    const API_URL = "TU_URL_DE_APPS_SCRIPT_AQUI";
 
     let chartPronosticoInstance = null;
     let chartOcupacionInstance = null;
+
+    // Función auxiliar para convertir cualquier valor de la hoja a número limpio
+    function parseNum(val) {
+      if (val === null || val === undefined || val === '') return 0;
+      if (typeof val === 'number') return val;
+      let str = val.toString().trim();
+      if (str.endsWith('%')) {
+        str = str.replace('%', '').replace(',', '.');
+        return parseFloat(str) / 100;
+      }
+      str = str.replace(/\./g, '').replace(',', '.');
+      return parseFloat(str) || 0;
+    }
+
+    function formatPercent(val) {
+      const num = parseNum(val);
+      return (num <= 1 ? num * 100 : num).toFixed(2) + '%';
+    }
+
+    function formatNumber(val) {
+      const num = parseNum(val);
+      return Math.round(num).toLocaleString('es-ES');
+    }
 
     async function cargarDatos() {
       try {
@@ -105,59 +128,80 @@
         const data = await response.json();
 
         // Asignar Fecha
-        document.getElementById('fecha-corte').innerText = data.fecha;
+        document.getElementById('fecha-corte').innerText = data.fecha || 'N/A';
 
-        // Cálculos generales
-        const totalLlamadas = Number(data.prepago.llamadasRecibidas) + Number(data.suspensiones.llamadasRecibidas);
-        const totalAgentes = Number(data.prepago.agentes) + Number(data.suspensiones.agentes);
-        const promNS = ((Number(data.prepago.nivelServicio) + Number(data.suspensiones.nivelServicio)) / 2 * 100).toFixed(2);
-        const promAbandono = ((Number(data.prepago.abandono) + Number(data.suspensiones.abandono)) / 2 * 100).toFixed(2);
+        // Extraer valores numéricos limpios
+        const prep = data.prepago || {};
+        const susp = data.suspensiones || {};
 
-        document.getElementById('kpi-llamadas').innerText = totalLlamadas.toLocaleString();
-        document.getElementById('kpi-ns').innerText = promNS + '%';
-        document.getElementById('kpi-abandono').innerText = promAbandono + '%';
+        const llamPrep = parseNum(prep.llamadasRecibidas);
+        const llamSusp = parseNum(susp.llamadasRecibidas);
+        const totalLlamadas = llamPrep + llamSusp;
+
+        const agPrep = parseNum(prep.agentes);
+        const agSusp = parseNum(susp.agentes);
+        const totalAgentes = agPrep + agSusp;
+
+        const nsPrep = parseNum(prep.nivelServicio);
+        const nsSusp = parseNum(susp.nivelServicio);
+        const promNS = ((nsPrep <= 1 ? nsPrep * 100 : nsPrep) + (nsSusp <= 1 ? nsSusp * 100 : nsSusp)) / 2;
+
+        const abPrep = parseNum(prep.abandono);
+        const abSusp = parseNum(susp.abandono);
+        const promAbandono = ((abPrep <= 1 ? abPrep * 100 : abPrep) + (abSusp <= 1 ? abSusp * 100 : abSusp)) / 2;
+
+        // Actualizar KPI Superiores
+        document.getElementById('kpi-llamadas').innerText = totalLlamadas.toLocaleString('es-ES');
+        document.getElementById('kpi-ns').innerText = promNS.toFixed(2) + '%';
+        document.getElementById('kpi-abandono').innerText = promAbandono.toFixed(2) + '%';
         document.getElementById('kpi-agentes').innerText = totalAgentes;
 
-        // Poblar Tabla
+        // Poblar Tabla Completa
         const tbody = document.getElementById('tabla-body');
         tbody.innerHTML = `
           <tr class="hover:bg-slate-700/50 transition">
-            <td class="p-3 font-semibold text-blue-400">${data.prepago.servicio}</td>
-            <td class="p-3">${(Number(data.prepago.precisionPronostico)*100).toFixed(2)}%</td>
-            <td class="p-3">${Number(data.prepago.llamadasRecibidas).toLocaleString()}</td>
-            <td class="p-3">${Number(data.prepago.minutosAtendidos).toLocaleString()}</td>
-            <td class="p-3">${(Number(data.prepago.abandono)*100).toFixed(2)}%</td>
-            <td class="p-3">${(Number(data.prepago.nivelServicio)*100).toFixed(2)}%</td>
-            <td class="p-3">${data.prepago.tmo}</td>
-            <td class="p-3">${data.prepago.agentes}</td>
-            <td class="p-3">${(Number(data.prepago.adhesion)*100).toFixed(2)}%</td>
-            <td class="p-3">${(Number(data.prepago.productividad)*100).toFixed(2)}%</td>
-            <td class="p-3">${(Number(data.prepago.ocupacion)*100).toFixed(2)}%</td>
+            <td class="p-3 font-semibold text-blue-400">${prep.servicio || 'Prepago 4350/4351'}</td>
+            <td class="p-3">${formatPercent(prep.precisionPronostico)}</td>
+            <td class="p-3">${formatNumber(prep.llamadasRecibidas)}</td>
+            <td class="p-3">${formatNumber(prep.minutosAtendidos)}</td>
+            <td class="p-3">${formatPercent(prep.abandono)}</td>
+            <td class="p-3">${formatPercent(prep.nivelServicio)}</td>
+            <td class="p-3">${parseNum(prep.tmo)}</td>
+            <td class="p-3">${parseNum(prep.agentes)}</td>
+            <td class="p-3">${formatPercent(prep.adhesion)}</td>
+            <td class="p-3">${formatPercent(prep.productividad)}</td>
+            <td class="p-3">${formatPercent(prep.ocupacion)}</td>
           </tr>
           <tr class="hover:bg-slate-700/50 transition">
-            <td class="p-3 font-semibold text-amber-400">${data.suspensiones.servicio}</td>
-            <td class="p-3">${(Number(data.suspensiones.precisionPronostico)*100).toFixed(2)}%</td>
-            <td class="p-3">${Number(data.suspensiones.llamadasRecibidas).toLocaleString()}</td>
-            <td class="p-3">${Number(data.suspensiones.minutosAtendidos).toLocaleString()}</td>
-            <td class="p-3">${(Number(data.suspensiones.abandono)*100).toFixed(2)}%</td>
-            <td class="p-3">${(Number(data.suspensiones.nivelServicio)*100).toFixed(2)}%</td>
-            <td class="p-3">${data.suspensiones.tmo}</td>
-            <td class="p-3">${data.suspensiones.agentes}</td>
-            <td class="p-3">${(Number(data.suspensiones.adhesion)*100).toFixed(2)}%</td>
-            <td class="p-3">${(Number(data.suspensiones.productividad)*100).toFixed(2)}%</td>
-            <td class="p-3">${(Number(data.suspensiones.ocupacion)*100).toFixed(2)}%</td>
+            <td class="p-3 font-semibold text-amber-400">${susp.servicio || 'Suspensiones'}</td>
+            <td class="p-3">${formatPercent(susp.precisionPronostico)}</td>
+            <td class="p-3">${formatNumber(susp.llamadasRecibidas)}</td>
+            <td class="p-3">${formatNumber(susp.minutosAtendidos)}</td>
+            <td class="p-3">${formatPercent(susp.abandono)}</td>
+            <td class="p-3">${formatPercent(susp.nivelServicio)}</td>
+            <td class="p-3">${parseNum(susp.tmo)}</td>
+            <td class="p-3">${parseNum(susp.agentes)}</td>
+            <td class="p-3">${formatPercent(susp.adhesion)}</td>
+            <td class="p-3">${formatPercent(susp.productividad)}</td>
+            <td class="p-3">${formatPercent(susp.ocupacion)}</td>
           </tr>
         `;
 
-        // Renderizar Gráficos con Chart.js
-        renderizarGraficos(data);
+        // Renderizar Gráficos
+        renderizarGraficos(prep, susp);
 
       } catch (error) {
         console.error("Error al cargar los datos:", error);
       }
     }
 
-    function renderizarGraficos(data) {
+    function renderizarGraficos(prep, susp) {
+      const pPron = parseNum(prep.precisionPronostico);
+      const sPron = parseNum(susp.precisionPronostico);
+
+      const valPPron = pPron <= 1 ? pPron * 100 : pPron;
+      const valSPron = sPron <= 1 ? sPron * 100 : sPron;
+
       // Gráfico de Precisión de Pronóstico
       const ctxPronostico = document.getElementById('chartPronostico').getContext('2d');
       if(chartPronosticoInstance) chartPronosticoInstance.destroy();
@@ -168,10 +212,7 @@
           labels: ['Prepago 4350/4351', 'Suspensiones'],
           datasets: [{
             label: 'Precisión de Pronóstico (%)',
-            data: [
-              Number(data.prepago.precisionPronostico) * 100,
-              Number(data.suspensiones.precisionPronostico) * 100
-            ],
+            data: [valPPron, valSPron],
             backgroundColor: ['#3b82f6', '#ef4444'],
             borderRadius: 6
           }]
@@ -188,6 +229,11 @@
       });
 
       // Gráfico de Ocupación vs Productividad
+      const pOcup = parseNum(prep.ocupacion);
+      const pProd = parseNum(prep.productividad);
+      const sOcup = parseNum(susp.ocupacion);
+      const sProd = parseNum(susp.productividad);
+
       const ctxOcupacion = document.getElementById('chartOcupacion').getContext('2d');
       if(chartOcupacionInstance) chartOcupacionInstance.destroy();
 
@@ -198,10 +244,10 @@
           datasets: [{
             label: 'Porcentaje (%)',
             data: [
-              Number(data.prepago.ocupacion) * 100,
-              Number(data.prepago.productividad) * 100,
-              Number(data.suspensiones.ocupacion) * 100,
-              Number(data.suspensiones.productividad) * 100
+              pOcup <= 1 ? pOcup * 100 : pOcup,
+              pProd <= 1 ? pProd * 100 : pProd,
+              sOcup <= 1 ? sOcup * 100 : sOcup,
+              sProd <= 1 ? sProd * 100 : sProd
             ],
             backgroundColor: ['#10b981', '#34d399', '#f59e0b', '#fbbf24'],
             borderRadius: 6
