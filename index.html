@@ -6,55 +6,55 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 p-6">
+<body class="bg-slate-100 text-slate-800 p-6">
   
   <!-- Encabezado Corporativo -->
-  <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-lg gap-4">
+  <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 bg-white p-5 rounded-xl border border-slate-200 shadow-sm gap-4">
     <div>
-      <h1 class="text-xl font-bold text-blue-400">EPSDC-ATE "JOSEFA CAMEJO"</h1>
-      <p class="text-sm text-slate-300">Reporte Estadístico de Gestión *611 — Acumulado al <span id="fecha-corte" class="font-semibold text-white">...</span></p>
+      <h1 class="text-xl font-bold text-blue-700">EPSDC-ATE "JOSEFA CAMEJO"</h1>
+      <p class="text-sm text-slate-500">Reporte Estadístico de Gestión *611 — Acumulado al <span id="fecha-corte" class="font-semibold text-slate-700">...</span></p>
     </div>
-    <div class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-semibold border border-emerald-500/30">
+    <div class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-semibold border border-emerald-200">
       ● En vivo (Google Sheets Connected)
     </div>
   </header>
 
   <!-- Tarjetas de KPI Superiores -->
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow">
-      <span class="text-slate-400 text-xs font-medium uppercase tracking-wider">Llamadas Atendidas / Recibidas</span>
-      <p id="kpi-llamadas" class="text-2xl font-bold mt-1 text-white">0</p>
-      <span class="text-xs text-blue-400 mt-1 block">Volumen operativo consolidado</span>
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+      <span class="text-slate-500 text-xs font-medium uppercase tracking-wider">Llamadas Atendidas / Recibidas</span>
+      <p id="kpi-llamadas" class="text-2xl font-bold mt-1 text-slate-900">0</p>
+      <span class="text-xs text-blue-600 mt-1 block">Volumen operativo consolidado</span>
     </div>
-    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow">
-      <span class="text-slate-400 text-xs font-medium uppercase tracking-wider">Nivel de Servicio Promedio</span>
-      <p id="kpi-ns" class="text-2xl font-bold text-emerald-400 mt-1">0%</p>
-      <span class="text-xs text-slate-400 mt-1 block">Meta operativa cumplida</span>
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+      <span class="text-slate-500 text-xs font-medium uppercase tracking-wider">Nivel de Servicio Promedio</span>
+      <p id="kpi-ns" class="text-2xl font-bold text-emerald-600 mt-1">0%</p>
+      <span class="text-xs text-slate-500 mt-1 block">Meta operativa cumplida</span>
     </div>
-    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow">
-      <span class="text-slate-400 text-xs font-medium uppercase tracking-wider">Tasa de Abandono Total</span>
-      <p id="kpi-abandono" class="text-2xl font-bold text-sky-400 mt-1">0%</p>
-      <span class="text-xs text-slate-400 mt-1 block">Control óptimo de llamadas</span>
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+      <span class="text-slate-500 text-xs font-medium uppercase tracking-wider">Tasa de Abandono Total</span>
+      <p id="kpi-abandono" class="text-2xl font-bold text-sky-600 mt-1">0%</p>
+      <span class="text-xs text-slate-500 mt-1 block">Control óptimo de llamadas</span>
     </div>
-    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow">
-      <span class="text-slate-400 text-xs font-medium uppercase tracking-wider">Agentes Efectivos Totales</span>
-      <p id="kpi-agentes" class="text-2xl font-bold text-amber-400 mt-1">0</p>
-      <span class="text-xs text-slate-400 mt-1 block">Personal asignado</span>
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+      <span class="text-slate-500 text-xs font-medium uppercase tracking-wider">Agentes Efectivos Totales</span>
+      <p id="kpi-agentes" class="text-2xl font-bold text-amber-600 mt-1">0</p>
+      <span class="text-xs text-slate-500 mt-1 block">Personal asignado</span>
     </div>
   </div>
 
   <!-- Sección de Gráficos Comparativos -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow">
-      <h3 class="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2">
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
         📊 Precisión de Pronóstico (%) por Servicio
       </h3>
       <div class="relative h-64">
         <canvas id="chartPronostico"></canvas>
       </div>
     </div>
-    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow">
-      <h3 class="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2">
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
         📈 Ocupación vs. Productividad (%)
       </h3>
       <div class="relative h-64">
@@ -64,14 +64,14 @@
   </div>
 
   <!-- Tabla Resumen Consolidado con todos los campos -->
-  <div class="bg-slate-800 rounded-xl border border-slate-700 shadow overflow-hidden mb-8">
-    <div class="p-4 bg-slate-800/80 border-b border-slate-700">
-      <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider">Resumen Consolidado de Métricas Operativas</h3>
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+    <div class="p-4 bg-slate-50 border-b border-slate-200">
+      <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Resumen Consolidado de Métricas Operativas</h3>
     </div>
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse text-xs">
         <thead>
-          <tr class="bg-slate-900 text-slate-300 border-b border-slate-700">
+          <tr class="bg-slate-900 text-white border-b border-slate-800">
             <th class="p-3">Servicio</th>
             <th class="p-3">Precisión Pronóstico</th>
             <th class="p-3">Llamadas Recibidas</th>
@@ -85,7 +85,7 @@
             <th class="p-3">Ocupación</th>
           </tr>
         </thead>
-        <tbody id="tabla-body" class="divide-y divide-slate-700 text-slate-200">
+        <tbody id="tabla-body" class="divide-y divide-slate-200 text-slate-700">
           <!-- Inyectado por JavaScript -->
         </tbody>
       </table>
@@ -93,33 +93,21 @@
   </div>
 
   <script>
-    // COLOCA AQUÍ TU URL DE GOOGLE APPS SCRIPT (MANTIENE LA MISMA QUE YA TENÍAS)
     const API_URL = "https://script.google.com/macros/s/AKfycbwzxy0CmrLBWRT3Y9riK2n-PLbQZxXKwbu463JVUL08tfqQqWgE3qWWgOlN7-3Q3Gyq/exec";
 
     let chartPronosticoInstance = null;
     let chartOcupacionInstance = null;
 
-    // Función auxiliar para convertir cualquier valor de la hoja a número limpio
     function parseNum(val) {
       if (val === null || val === undefined || val === '') return 0;
-      if (typeof val === 'number') return val;
       let str = val.toString().trim();
       if (str.endsWith('%')) {
-        str = str.replace('%', '').replace(',', '.');
+        str = str.replace('%', '').replace(/\./g, '').replace(',', '.');
         return parseFloat(str) / 100;
       }
+      // Limpiar puntos de miles y comas decimales
       str = str.replace(/\./g, '').replace(',', '.');
       return parseFloat(str) || 0;
-    }
-
-    function formatPercent(val) {
-      const num = parseNum(val);
-      return (num <= 1 ? num * 100 : num).toFixed(2) + '%';
-    }
-
-    function formatNumber(val) {
-      const num = parseNum(val);
-      return Math.round(num).toLocaleString('es-ES');
     }
 
     async function cargarDatos() {
@@ -127,13 +115,12 @@
         const response = await fetch(API_URL);
         const data = await response.json();
 
-        // Asignar Fecha
         document.getElementById('fecha-corte').innerText = data.fecha || 'N/A';
 
-        // Extraer valores numéricos limpios
         const prep = data.prepago || {};
         const susp = data.suspensiones || {};
 
+        // Valores limpios
         const llamPrep = parseNum(prep.llamadasRecibidas);
         const llamSusp = parseNum(susp.llamadasRecibidas);
         const totalLlamadas = llamPrep + llamSusp;
@@ -150,44 +137,43 @@
         const abSusp = parseNum(susp.abandono);
         const promAbandono = ((abPrep <= 1 ? abPrep * 100 : abPrep) + (abSusp <= 1 ? abSusp * 100 : abSusp)) / 2;
 
-        // Actualizar KPI Superiores
+        // Actualizar KPIs
         document.getElementById('kpi-llamadas').innerText = totalLlamadas.toLocaleString('es-ES');
         document.getElementById('kpi-ns').innerText = promNS.toFixed(2) + '%';
         document.getElementById('kpi-abandono').innerText = promAbandono.toFixed(2) + '%';
         document.getElementById('kpi-agentes').innerText = totalAgentes;
 
-        // Poblar Tabla Completa
+        // Poblar Tabla
         const tbody = document.getElementById('tabla-body');
         tbody.innerHTML = `
-          <tr class="hover:bg-slate-700/50 transition">
-            <td class="p-3 font-semibold text-blue-400">${prep.servicio || 'Prepago 4350/4351'}</td>
-            <td class="p-3">${formatPercent(prep.precisionPronostico)}</td>
-            <td class="p-3">${formatNumber(prep.llamadasRecibidas)}</td>
-            <td class="p-3">${formatNumber(prep.minutosAtendidos)}</td>
-            <td class="p-3">${formatPercent(prep.abandono)}</td>
-            <td class="p-3">${formatPercent(prep.nivelServicio)}</td>
-            <td class="p-3">${parseNum(prep.tmo)}</td>
-            <td class="p-3">${parseNum(prep.agentes)}</td>
-            <td class="p-3">${formatPercent(prep.adhesion)}</td>
-            <td class="p-3">${formatPercent(prep.productividad)}</td>
-            <td class="p-3">${formatPercent(prep.ocupacion)}</td>
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 font-semibold text-blue-700">${prep.servicio}</td>
+            <td class="p-3">${prep.precisionPronostico}</td>
+            <td class="p-3">${prep.llamadasRecibidas}</td>
+            <td class="p-3">${prep.minutosAtendidos}</td>
+            <td class="p-3">${prep.abandono}</td>
+            <td class="p-3">${prep.nivelServicio}</td>
+            <td class="p-3">${prep.tmo}</td>
+            <td class="p-3">${prep.agentes}</td>
+            <td class="p-3">${prep.adhesion}</td>
+            <td class="p-3">${prep.productividad}</td>
+            <td class="p-3">${prep.ocupacion}</td>
           </tr>
-          <tr class="hover:bg-slate-700/50 transition">
-            <td class="p-3 font-semibold text-amber-400">${susp.servicio || 'Suspensiones'}</td>
-            <td class="p-3">${formatPercent(susp.precisionPronostico)}</td>
-            <td class="p-3">${formatNumber(susp.llamadasRecibidas)}</td>
-            <td class="p-3">${formatNumber(susp.minutosAtendidos)}</td>
-            <td class="p-3">${formatPercent(susp.abandono)}</td>
-            <td class="p-3">${formatPercent(susp.nivelServicio)}</td>
-            <td class="p-3">${parseNum(susp.tmo)}</td>
-            <td class="p-3">${parseNum(susp.agentes)}</td>
-            <td class="p-3">${formatPercent(susp.adhesion)}</td>
-            <td class="p-3">${formatPercent(susp.productividad)}</td>
-            <td class="p-3">${formatPercent(susp.ocupacion)}</td>
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 font-semibold text-amber-700">${susp.servicio}</td>
+            <td class="p-3">${susp.precisionPronostico}</td>
+            <td class="p-3">${susp.llamadasRecibidas}</td>
+            <td class="p-3">${susp.minutosAtendidos}</td>
+            <td class="p-3">${susp.abandono}</td>
+            <td class="p-3">${susp.nivelServicio}</td>
+            <td class="p-3">${susp.tmo}</td>
+            <td class="p-3">${susp.agentes}</td>
+            <td class="p-3">${susp.adhesion}</td>
+            <td class="p-3">${susp.productividad}</td>
+            <td class="p-3">${susp.ocupacion}</td>
           </tr>
         `;
 
-        // Renderizar Gráficos
         renderizarGraficos(prep, susp);
 
       } catch (error) {
@@ -202,7 +188,7 @@
       const valPPron = pPron <= 1 ? pPron * 100 : pPron;
       const valSPron = sPron <= 1 ? sPron * 100 : sPron;
 
-      // Gráfico de Precisión de Pronóstico
+      // Gráfico Pronóstico
       const ctxPronostico = document.getElementById('chartPronostico').getContext('2d');
       if(chartPronosticoInstance) chartPronosticoInstance.destroy();
       
@@ -213,7 +199,7 @@
           datasets: [{
             label: 'Precisión de Pronóstico (%)',
             data: [valPPron, valSPron],
-            backgroundColor: ['#3b82f6', '#ef4444'],
+            backgroundColor: ['#2563eb', '#dc2626'],
             borderRadius: 6
           }]
         },
@@ -221,14 +207,14 @@
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            y: { beginAtZero: true, max: 100, grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+            y: { beginAtZero: true, max: 100, grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } },
+            x: { grid: { display: false }, ticks: { color: '#64748b' } }
           },
           plugins: { legend: { display: false } }
         }
       });
 
-      // Gráfico de Ocupación vs Productividad
+      // Gráfico Ocupación vs Productividad
       const pOcup = parseNum(prep.ocupacion);
       const pProd = parseNum(prep.productividad);
       const sOcup = parseNum(susp.ocupacion);
@@ -249,7 +235,7 @@
               sOcup <= 1 ? sOcup * 100 : sOcup,
               sProd <= 1 ? sProd * 100 : sProd
             ],
-            backgroundColor: ['#10b981', '#34d399', '#f59e0b', '#fbbf24'],
+            backgroundColor: ['#059669', '#34d399', '#d97706', '#fbbf24'],
             borderRadius: 6
           }]
         },
@@ -257,8 +243,8 @@
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            y: { beginAtZero: true, max: 100, grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+            y: { beginAtZero: true, max: 100, grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } },
+            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
           },
           plugins: { legend: { display: false } }
         }
