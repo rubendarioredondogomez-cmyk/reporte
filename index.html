@@ -22,7 +22,7 @@
   <!-- Tarjetas de KPI Superiores -->
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-      <span class="text-slate-500 text-xs font-medium uppercase tracking-wider">Llamadas Atendidas / Recibidas</span>
+      <span class="text-slate-500 text-xs font-medium uppercase tracking-wider">Llamadas Recibidas Totales</span>
       <p id="kpi-llamadas" class="text-2xl font-bold mt-1 text-slate-900">0</p>
       <span class="text-xs text-blue-600 mt-1 block">Volumen operativo consolidado</span>
     </div>
@@ -32,7 +32,7 @@
       <span class="text-xs text-slate-500 mt-1 block">Meta operativa cumplida</span>
     </div>
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-      <span class="text-slate-500 text-xs font-medium uppercase tracking-wider">Tasa de Abandono Total</span>
+      <span class="text-slate-500 text-xs font-medium uppercase tracking-wider">Tasa de Abandono Promedio</span>
       <p id="kpi-abandono" class="text-2xl font-bold text-sky-600 mt-1">0%</p>
       <span class="text-xs text-slate-500 mt-1 block">Control óptimo de llamadas</span>
     </div>
@@ -99,14 +99,8 @@
     let chartOcupacionInstance = null;
 
     function parseNum(val) {
-      if (val === null || val === undefined || val === '') return 0;
-      let str = val.toString().trim();
-      if (str.endsWith('%')) {
-        str = str.replace('%', '').replace(/\./g, '').replace(',', '.');
-        return parseFloat(str) / 100;
-      }
-      // Limpiar puntos de miles y comas decimales
-      str = str.replace(/\./g, '').replace(',', '.');
+      if (!val) return 0;
+      let str = val.toString().trim().replace('%', '').replace(/\./g, '').replace(',', '.');
       return parseFloat(str) || 0;
     }
 
@@ -120,39 +114,27 @@
         const prep = data.prepago || {};
         const susp = data.suspensiones || {};
 
-        // Valores limpios
-        const llamPrep = parseNum(prep.llamadasRecibidas);
-        const llamSusp = parseNum(susp.llamadasRecibidas);
-        const totalLlamadas = llamPrep + llamSusp;
+        // Totales para KPIs
+        const totalLlamadas = parseNum(prep.recibidas) + parseNum(susp.recibidas);
+        const totalAgentes = parseNum(prep.agentes) + parseNum(susp.agentes);
+        const promNS = (parseNum(prep.ns) + parseNum(susp.ns)) / 2;
+        const promAbandono = (parseNum(prep.abandono) + parseNum(susp.abandono)) / 2;
 
-        const agPrep = parseNum(prep.agentes);
-        const agSusp = parseNum(susp.agentes);
-        const totalAgentes = agPrep + agSusp;
-
-        const nsPrep = parseNum(prep.nivelServicio);
-        const nsSusp = parseNum(susp.nivelServicio);
-        const promNS = ((nsPrep <= 1 ? nsPrep * 100 : nsPrep) + (nsSusp <= 1 ? nsSusp * 100 : nsSusp)) / 2;
-
-        const abPrep = parseNum(prep.abandono);
-        const abSusp = parseNum(susp.abandono);
-        const promAbandono = ((abPrep <= 1 ? abPrep * 100 : abPrep) + (abSusp <= 1 ? abSusp * 100 : abSusp)) / 2;
-
-        // Actualizar KPIs
         document.getElementById('kpi-llamadas').innerText = totalLlamadas.toLocaleString('es-ES');
         document.getElementById('kpi-ns').innerText = promNS.toFixed(2) + '%';
         document.getElementById('kpi-abandono').innerText = promAbandono.toFixed(2) + '%';
         document.getElementById('kpi-agentes').innerText = totalAgentes;
 
-        // Poblar Tabla
+        // Poblar Tabla directamente con los valores leídos del Sheet
         const tbody = document.getElementById('tabla-body');
         tbody.innerHTML = `
           <tr class="hover:bg-slate-50 transition">
             <td class="p-3 font-semibold text-blue-700">${prep.servicio}</td>
-            <td class="p-3">${prep.precisionPronostico}</td>
-            <td class="p-3">${prep.llamadasRecibidas}</td>
-            <td class="p-3">${prep.minutosAtendidos}</td>
+            <td class="p-3">${prep.pronostico}</td>
+            <td class="p-3">${prep.recibidas}</td>
+            <td class="p-3">${prep.minutos}</td>
             <td class="p-3">${prep.abandono}</td>
-            <td class="p-3">${prep.nivelServicio}</td>
+            <td class="p-3">${prep.ns}</td>
             <td class="p-3">${prep.tmo}</td>
             <td class="p-3">${prep.agentes}</td>
             <td class="p-3">${prep.adhesion}</td>
@@ -161,11 +143,11 @@
           </tr>
           <tr class="hover:bg-slate-50 transition">
             <td class="p-3 font-semibold text-amber-700">${susp.servicio}</td>
-            <td class="p-3">${susp.precisionPronostico}</td>
-            <td class="p-3">${susp.llamadasRecibidas}</td>
-            <td class="p-3">${susp.minutosAtendidos}</td>
+            <td class="p-3">${susp.pronostico}</td>
+            <td class="p-3">${susp.recibidas}</td>
+            <td class="p-3">${susp.minutos}</td>
             <td class="p-3">${susp.abandono}</td>
-            <td class="p-3">${susp.nivelServicio}</td>
+            <td class="p-3">${susp.ns}</td>
             <td class="p-3">${susp.tmo}</td>
             <td class="p-3">${susp.agentes}</td>
             <td class="p-3">${susp.adhesion}</td>
@@ -182,11 +164,8 @@
     }
 
     function renderizarGraficos(prep, susp) {
-      const pPron = parseNum(prep.precisionPronostico);
-      const sPron = parseNum(susp.precisionPronostico);
-
-      const valPPron = pPron <= 1 ? pPron * 100 : pPron;
-      const valSPron = sPron <= 1 ? sPron * 100 : sPron;
+      const pPron = parseNum(prep.pronostico);
+      const sPron = parseNum(susp.pronostico);
 
       // Gráfico Pronóstico
       const ctxPronostico = document.getElementById('chartPronostico').getContext('2d');
@@ -198,7 +177,7 @@
           labels: ['Prepago 4350/4351', 'Suspensiones'],
           datasets: [{
             label: 'Precisión de Pronóstico (%)',
-            data: [valPPron, valSPron],
+            data: [pPron, sPron],
             backgroundColor: ['#2563eb', '#dc2626'],
             borderRadius: 6
           }]
@@ -229,12 +208,7 @@
           labels: ['Prepago (Ocupación)', 'Prepago (Productividad)', 'Suspensiones (Ocupación)', 'Suspensiones (Productividad)'],
           datasets: [{
             label: 'Porcentaje (%)',
-            data: [
-              pOcup <= 1 ? pOcup * 100 : pOcup,
-              pProd <= 1 ? pProd * 100 : pProd,
-              sOcup <= 1 ? sOcup * 100 : sOcup,
-              sProd <= 1 ? sProd * 100 : sProd
-            ],
+            data: [pOcup, pProd, sOcup, sProd],
             backgroundColor: ['#059669', '#34d399', '#d97706', '#fbbf24'],
             borderRadius: 6
           }]
