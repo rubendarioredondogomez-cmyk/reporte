@@ -47,7 +47,7 @@
     </div>
   </div>
 
-  <!-- Gráficos Comparativos -->
+  <!-- Sección de Gráficos -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
       <h3 class="text-xs font-bold text-slate-700 mb-3">📊 Precisión de Pronóstico (%) por Servicio</h3>
@@ -92,9 +92,11 @@
     let chartPronosticoInstance = null;
     let chartOcupacionInstance = null;
 
-    function parseNum(val) {
+    // Convertidor ultra-seguro a números
+    function parseSafe(val) {
       if (!val) return 0;
       let str = val.toString().trim().replace('%', '');
+      // Elimina puntos de mil y convierte coma decimal a punto
       str = str.replace(/\./g, '').replace(',', '.');
       return parseFloat(str) || 0;
     }
@@ -109,52 +111,53 @@
         const prep = data.prepago || {};
         const susp = data.suspensiones || {};
 
-        // Rellenar Tarjetas KPI Compactas
+        // 1. POBLAR TABLA (Directo sin transformaciones complejas)
+        const tbody = document.getElementById('tabla-body');
+        tbody.innerHTML = `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-2.5 font-semibold text-blue-700">${prep.servicio || 'Prepago 4350/4351'}</td>
+            <td class="p-2.5">${prep.pronostico || '-'}</td>
+            <td class="p-2.5">${prep.recibidas || '-'}</td>
+            <td class="p-2.5">${prep.minutos || '-'}</td>
+            <td class="p-2.5">${prep.abandono || '-'}</td>
+            <td class="p-2.5">${prep.ns || '-'}</td>
+            <td class="p-2.5">${prep.tmo || '-'}</td>
+            <td class="p-2.5">${prep.agentes || '-'}</td>
+            <td class="p-2.5">${prep.adhesion || '-'}</td>
+            <td class="p-2.5">${prep.productividad || '-'}</td>
+            <td class="p-2.5">${prep.ocupacion || '-'}</td>
+          </tr>
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-2.5 font-semibold text-amber-700">${susp.servicio || 'Suspensiones'}</td>
+            <td class="p-2.5">${susp.pronostico || '-'}</td>
+            <td class="p-2.5">${susp.recibidas || '-'}</td>
+            <td class="p-2.5">${susp.minutos || '-'}</td>
+            <td class="p-2.5">${susp.abandono || '-'}</td>
+            <td class="p-2.5">${susp.ns || '-'}</td>
+            <td class="p-2.5">${susp.tmo || '-'}</td>
+            <td class="p-2.5">${susp.agentes || '-'}</td>
+            <td class="p-2.5">${susp.adhesion || '-'}</td>
+            <td class="p-2.5">${susp.productividad || '-'}</td>
+            <td class="p-2.5">${susp.ocupacion || '-'}</td>
+          </tr>
+        `;
+
+        // 2. POBLAR TARJETAS
         document.getElementById('kpi-tmo-prepago').innerText = (prep.tmo || '0') + ' seg';
         document.getElementById('kpi-tmo-susp').innerText = (susp.tmo || '0') + ' seg';
 
-        const minPrep = parseNum(prep.minutos);
-        const minSusp = parseNum(susp.minutos);
-        document.getElementById('kpi-minutos-totales').innerText = (minPrep + minSusp).toLocaleString('es-ES');
+        const minP = parseSafe(prep.minutos);
+        const minS = parseSafe(susp.minutos);
+        document.getElementById('kpi-minutos-totales').innerText = (minP + minS).toLocaleString('es-ES');
 
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
-        const agPrep = parseNum(prep.agentes);
-        const agSusp = parseNum(susp.agentes);
-        document.getElementById('kpi-agentes').innerText = agPrep + agSusp;
+        const agP = parseSafe(prep.agentes);
+        const agS = parseSafe(susp.agentes);
+        document.getElementById('kpi-agentes').innerText = agP + agS;
 
-        // Poblar Tabla
-        const tbody = document.getElementById('tabla-body');
-        tbody.innerHTML = `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="p-2.5 font-semibold text-blue-700">${prep.servicio || 'Prepago'}</td>
-            <td class="p-2.5">${prep.pronostico || ''}</td>
-            <td class="p-2.5">${prep.recibidas || ''}</td>
-            <td class="p-2.5">${prep.minutos || ''}</td>
-            <td class="p-2.5">${prep.abandono || ''}</td>
-            <td class="p-2.5">${prep.ns || ''}</td>
-            <td class="p-2.5">${prep.tmo || ''}</td>
-            <td class="p-2.5">${prep.agentes || ''}</td>
-            <td class="p-2.5">${prep.adhesion || ''}</td>
-            <td class="p-2.5">${prep.productividad || ''}</td>
-            <td class="p-2.5">${prep.ocupacion || ''}</td>
-          </tr>
-          <tr class="hover:bg-slate-50 transition">
-            <td class="p-2.5 font-semibold text-amber-700">${susp.servicio || 'Suspensiones'}</td>
-            <td class="p-2.5">${susp.pronostico || ''}</td>
-            <td class="p-2.5">${susp.recibidas || ''}</td>
-            <td class="p-2.5">${susp.minutos || ''}</td>
-            <td class="p-2.5">${susp.abandono || ''}</td>
-            <td class="p-2.5">${susp.ns || ''}</td>
-            <td class="p-2.5">${susp.tmo || ''}</td>
-            <td class="p-2.5">${susp.agentes || ''}</td>
-            <td class="p-2.5">${susp.adhesion || ''}</td>
-            <td class="p-2.5">${susp.productividad || ''}</td>
-            <td class="p-2.5">${susp.ocupacion || ''}</td>
-          </tr>
-        `;
-
+        // 3. RENDERIZAR GRÁFICOS
         renderizarGraficos(prep, susp);
 
       } catch (error) {
@@ -163,8 +166,8 @@
     }
 
     function renderizarGraficos(prep, susp) {
-      const pPron = parseNum(prep.pronostico);
-      const sPron = parseNum(susp.pronostico);
+      const pPron = parseSafe(prep.pronostico);
+      const sPron = parseSafe(susp.pronostico);
 
       const ctxPronostico = document.getElementById('chartPronostico').getContext('2d');
       if(chartPronosticoInstance) chartPronosticoInstance.destroy();
@@ -191,10 +194,10 @@
         }
       });
 
-      const pOcup = parseNum(prep.ocupacion);
-      const pProd = parseNum(prep.productividad);
-      const sOcup = parseNum(susp.ocupacion);
-      const sProd = parseNum(susp.productividad);
+      const pOcup = parseSafe(prep.ocupacion);
+      const pProd = parseSafe(prep.productividad);
+      const sOcup = parseSafe(susp.ocupacion);
+      const sProd = parseSafe(susp.productividad);
 
       const ctxOcupacion = document.getElementById('chartOcupacion').getContext('2d');
       if(chartOcupacionInstance) chartOcupacionInstance.destroy();
@@ -226,3 +229,51 @@
   </script>
 </body>
 </html>
+(No olvides reemplazar "TU_URL_DE_APPS_SCRIPT_AQUI" con tu URL de Apps Script antes de guardar).
+
+Paso 2: Asegurar el retorno en Google Apps Script
+Para garantizar que tu Google Apps Script devuelva los campos requeridos (servicio, pronostico, recibidas, minutos, abandono, ns, tmo, agentes, adhesion, productividad, ocupacion), asegúrate de que tu función en Google Sheets sea la siguiente:
+
+JavaScript
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
+  var data = {
+    fecha: sheet.getRange("C4").getDisplayValue(),
+    prepago: {
+      servicio: sheet.getRange("B18").getDisplayValue(),
+      pronostico: sheet.getRange("C18").getDisplayValue(),
+      recibidas: sheet.getRange("D18").getDisplayValue(),
+      pminutos: sheet.getRange("E18").getDisplayValue(),
+      minutos: sheet.getRange("F18").getDisplayValue(),
+      abandonadas: sheet.getRange("G18").getDisplayValue(),
+      abandono: sheet.getRange("H18").getDisplayValue(),
+      ns: sheet.getRange("I18").getDisplayValue(),
+      nsInter: sheet.getRange("J18").getDisplayValue(),
+      tmo: sheet.getRange("K18").getDisplayValue(),
+      agentes: sheet.getRange("L18").getDisplayValue(),
+      adhesion: sheet.getRange("M18").getDisplayValue(),
+      productividad: sheet.getRange("N18").getDisplayValue(),
+      ocupacion: sheet.getRange("O18").getDisplayValue()
+    },
+    suspensiones: {
+      servicio: sheet.getRange("B19").getDisplayValue(),
+      pronostico: sheet.getRange("C19").getDisplayValue(),
+      recibidas: sheet.getRange("D19").getDisplayValue(),
+      pminutos: sheet.getRange("E19").getDisplayValue(),
+      minutos: sheet.getRange("F19").getDisplayValue(),
+      abandonadas: sheet.getRange("G19").getDisplayValue(),
+      abandono: sheet.getRange("H19").getDisplayValue(),
+      ns: sheet.getRange("I19").getDisplayValue(),
+      nsInter: sheet.getRange("J19").getDisplayValue(),
+      tmo: sheet.getRange("K19").getDisplayValue(),
+      agentes: sheet.getRange("L19").getDisplayValue(),
+      adhesion: sheet.getRange("M19").getDisplayValue(),
+      productividad: sheet.getRange("N19").getDisplayValue(),
+      ocupacion: sheet.getRange("O19").getDisplayValue()
+    }
+  };
+
+  return ContentService.createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
