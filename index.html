@@ -1,3 +1,4 @@
+HTML
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,19 +20,23 @@
     </div>
   </header>
 
-  <!-- Tarjetas de KPI Compactas -->
+  <!-- Tarjetas de KPI Reorganizadas -->
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
     <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+      <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">Minutos Totales</span>
+      <p id="kpi-minutos-totales" class="text-lg font-bold text-slate-900 mt-1">0</p>
+    </div>
+    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+      <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">% Alcance (Meta 373.500)</span>
+      <p id="kpi-alcance" class="text-lg font-bold text-emerald-600 mt-1">0%</p>
+    </div>
+    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
       <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">TMO Prepago</span>
-      <p id="kpi-tmo-prepago" class="text-lg font-bold text-blue-600 mt-1">0 seg</p>
+      <p id="kpi-tmo-prepago" class="text-lg font-bold text-blue-600 mt-1">0</p>
     </div>
     <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
       <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">TMO Suspensiones</span>
-      <p id="kpi-tmo-susp" class="text-lg font-bold text-amber-600 mt-1">0 seg</p>
-    </div>
-    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-      <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">Minutos Totales</span>
-      <p id="kpi-minutos-totales" class="text-lg font-bold text-slate-800 mt-1">0</p>
+      <p id="kpi-tmo-susp" class="text-lg font-bold text-amber-600 mt-1">0</p>
     </div>
     <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
       <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">% Abandono Prepago</span>
@@ -40,10 +45,6 @@
     <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
       <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">% Abandono Susp.</span>
       <p id="kpi-abandono-susp" class="text-lg font-bold text-rose-600 mt-1">0%</p>
-    </div>
-    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-      <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">Agentes Totales</span>
-      <p id="kpi-agentes" class="text-lg font-bold text-emerald-600 mt-1">0</p>
     </div>
   </div>
 
@@ -92,11 +93,9 @@
     let chartPronosticoInstance = null;
     let chartOcupacionInstance = null;
 
-    // Convertidor ultra-seguro a números
     function parseSafe(val) {
       if (!val) return 0;
       let str = val.toString().trim().replace('%', '');
-      // Elimina puntos de mil y convierte coma decimal a punto
       str = str.replace(/\./g, '').replace(',', '.');
       return parseFloat(str) || 0;
     }
@@ -111,7 +110,7 @@
         const prep = data.prepago || {};
         const susp = data.suspensiones || {};
 
-        // 1. POBLAR TABLA (Directo sin transformaciones complejas)
+        // 1. POBLAR TABLA
         const tbody = document.getElementById('tabla-body');
         tbody.innerHTML = `
           <tr class="hover:bg-slate-50 transition">
@@ -142,20 +141,21 @@
           </tr>
         `;
 
-        // 2. POBLAR TARJETAS
-        document.getElementById('kpi-tmo-prepago').innerText = (prep.tmo || '0') + ' seg';
-        document.getElementById('kpi-tmo-susp').innerText = (susp.tmo || '0') + ' seg';
-
+        // 2. CÁLCULOS Y POBLAR TARJETAS EN EL NUEVO ORDEN
         const minP = parseSafe(prep.minutos);
         const minS = parseSafe(susp.minutos);
-        document.getElementById('kpi-minutos-totales').innerText = (minP + minS).toLocaleString('es-ES');
+        const totalMinutos = minP + minS;
+        
+        // Cálculo del % de Alcance contra la meta de 373.500 minutos
+        const metaMinutos = 373500;
+        const porcentajeAlcance = metaMinutos > 0 ? (totalMinutos / metaMinutos) * 100 : 0;
 
+        document.getElementById('kpi-minutos-totales').innerText = totalMinutos.toLocaleString('es-ES');
+        document.getElementById('kpi-alcance').innerText = porcentajeAlcance.toFixed(2) + '%';
+        document.getElementById('kpi-tmo-prepago').innerText = (prep.tmo || '0');
+        document.getElementById('kpi-tmo-susp').innerText = (susp.tmo || '0');
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
-
-        const agP = parseSafe(prep.agentes);
-        const agS = parseSafe(susp.agentes);
-        document.getElementById('kpi-agentes').innerText = agP + agS;
 
         // 3. RENDERIZAR GRÁFICOS
         renderizarGraficos(prep, susp);
