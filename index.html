@@ -87,7 +87,7 @@
   </div>
 
   <script>
-    const API_URL ="https://script.google.com/macros/s/AKfycbwzxy0CmrLBWRT3Y9riK2n-PLbQZxXKwbu463JVUL08tfqQqWgE3qWWgOlN7-3Q3Gyq/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwzxy0CmrLBWRT3Y9riK2n-PLbQZxXKwbu463JVUL08tfqQqWgE3qWWgOlN7-3Q3Gyq/exec";
 
     let chartDiarioInstance = null;
     let chartOcupacionInstance = null;
@@ -160,37 +160,29 @@
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
-        // EXTRACCIÓN Y FILTRADO UNIVERSAL EN EL NAVEGADOR
+        // PROCESAMIENTO Y FILTRADO LOCAL DESDE LAS FILAS CRUDAS
         const diasValidos = [];
         const minutosValidos = [];
 
-        // Soporta tanto brutoDiario como formato diario directo
-        let itemsAProcesar = [];
-        if (data.brutoDiario && Array.isArray(data.brutoDiario)) {
-          itemsAProcesar = data.brutoDiario;
-        } else if (data.diario && data.diario.dias) {
-          for (let i = 0; i < data.diario.dias.length; i++) {
-            itemsAProcesar.push({ dia: data.diario.dias[i], minutos: data.diario.minutos[i] });
-          }
-        }
+        // data.filasCrudas contiene filas donde index 0 = Columna C (Fecha) e index 11 = Columna N (Minutos)
+        (data.filasCrudas || []).forEach(row => {
+          let diaRaw = (row[0] || "").toString().trim();
+          let minRaw = (row[11] || "").toString().trim();
 
-        itemsAProcesar.forEach(item => {
-          let diaStr = (item.dia || "").toString().trim();
-          let minStr = (item.minutos || "").toString().trim();
-
-          if (!diaStr || diaStr.toLowerCase().includes("total") || diaStr.toLowerCase().includes("fecha")) {
+          // Ignorar filas vacías, encabezados o la palabra "Total"
+          if (!diaRaw || diaRaw.toLowerCase().includes("total") || diaRaw.toLowerCase().includes("fecha")) {
             return;
           }
 
-          let numMin = parseSafe(minStr);
+          let numMin = parseSafe(minRaw);
 
-          // Filtrar únicamente los días con minutos reales mayores a 0
+          // FILTRO CLAVE: Solo aceptar días que tengan minutos reales mayores a 0
           if (numMin > 0) {
-            let diaLimpio = diaStr.split("/")[0].split("-")[0].trim();
+            let diaLimpio = diaRaw.split("/")[0].split("-")[0].trim();
             if (diaLimpio.length === 1) diaLimpio = "0" + diaLimpio;
 
             diasValidos.push(diaLimpio);
-            minutosValidos.push(minStr);
+            minutosValidos.push(minRaw);
           }
         });
 
