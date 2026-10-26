@@ -19,7 +19,7 @@
     </div>
   </header>
 
-  <!-- Tarjetas de KPI Reorganizadas -->
+  <!-- Tarjetas de KPI -->
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
     <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
       <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">Minutos Totales</span>
@@ -49,10 +49,12 @@
 
   <!-- Sección de Gráficos -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <!-- NUEVO GRÁFICO DIARIO DE MINUTOS ATENDIDOS -->
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-      <h3 class="text-xs font-bold text-slate-700 mb-3">📊 Precisión de Pronóstico (%) por Servicio</h3>
-      <div class="relative h-56"><canvas id="chartPronostico"></canvas></div>
+      <h3 class="text-xs font-bold text-slate-700 mb-3">📅 Minutos Atendidos por Día</h3>
+      <div class="relative h-56"><canvas id="chartDiario"></canvas></div>
     </div>
+    
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
       <h3 class="text-xs font-bold text-slate-700 mb-3">📈 Ocupación vs. Productividad (%)</h3>
       <div class="relative h-56"><canvas id="chartOcupacion"></canvas></div>
@@ -89,7 +91,7 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwzxy0CmrLBWRT3Y9riK2n-PLbQZxXKwbu463JVUL08tfqQqWgE3qWWgOlN7-3Q3Gyq/exec";
 
-    let chartPronosticoInstance = null;
+    let chartDiarioInstance = null;
     let chartOcupacionInstance = null;
 
     function parseSafe(val) {
@@ -108,6 +110,7 @@
 
         const prep = data.prepago || {};
         const susp = data.suspensiones || {};
+        const diario = data.diario || { dias: [], minutos: [] };
 
         // 1. POBLAR TABLA
         const tbody = document.getElementById('tabla-body');
@@ -140,12 +143,11 @@
           </tr>
         `;
 
-        // 2. CÁLCULOS Y POBLAR TARJETAS EN EL NUEVO ORDEN
+        // 2. CÁLCULOS Y POBLAR TARJETAS
         const minP = parseSafe(prep.minutos);
         const minS = parseSafe(susp.minutos);
         const totalMinutos = minP + minS;
         
-        // Cálculo del % de Alcance contra la meta de 373.500 minutos
         const metaMinutos = 373500;
         const porcentajeAlcance = metaMinutos > 0 ? (totalMinutos / metaMinutos) * 100 : 0;
 
@@ -157,42 +159,43 @@
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
         // 3. RENDERIZAR GRÁFICOS
-        renderizarGraficos(prep, susp);
+        renderizarGraficos(prep, susp, diario);
 
       } catch (error) {
         console.error("Error al cargar los datos:", error);
       }
     }
 
-    function renderizarGraficos(prep, susp) {
-      const pPron = parseSafe(prep.pronostico);
-      const sPron = parseSafe(susp.pronostico);
-
-      const ctxPronostico = document.getElementById('chartPronostico').getContext('2d');
-      if(chartPronosticoInstance) chartPronosticoInstance.destroy();
+    function renderizarGraficos(prep, susp, diario) {
+      // Gráfico Diario de Minutos Atendidos
+      const ctxDiario = document.getElementById('chartDiario').getContext('2d');
+      if(chartDiarioInstance) chartDiarioInstance.destroy();
       
-      chartPronosticoInstance = new Chart(ctxPronostico, {
+      const valoresMinutos = diario.minutos.map(m => parseSafe(m));
+
+      chartDiarioInstance = new Chart(ctxDiario, {
         type: 'bar',
         data: {
-          labels: ['Prepago 4350/4351', 'Suspensiones'],
+          labels: diario.dias,
           datasets: [{
-            label: 'Precisión de Pronóstico (%)',
-            data: [pPron, sPron],
-            backgroundColor: ['#2563eb', '#dc2626'],
-            borderRadius: 6
+            label: 'Minutos Atendidos',
+            data: valoresMinutos,
+            backgroundColor: '#2563eb',
+            borderRadius: 4
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            y: { beginAtZero: true, max: 100, grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } },
-            x: { grid: { display: false }, ticks: { color: '#64748b' } }
+            y: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { color: '#64748b', font: { size: 10 } } },
+            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } }
           },
           plugins: { legend: { display: false } }
         }
       });
 
+      // Gráfico Ocupación vs Productividad
       const pOcup = parseSafe(prep.ocupacion);
       const pProd = parseSafe(prep.productividad);
       const sOcup = parseSafe(susp.ocupacion);
