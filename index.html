@@ -114,6 +114,7 @@
 
         const prep = data.prepago || {};
         const susp = data.suspensiones || {};
+        const diario = data.diario || { dias: [], recibidas: [], minutos: [] };
 
         // Poblar tabla
         const tbody = document.getElementById('tabla-body');
@@ -160,24 +161,21 @@
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
-        // PROCESAMIENTO Y FILTRADO LOCAL DE DÍAS, MINUTOS Y LLAMADAS
+        // FILTRADO ESTRICTO DE DÍAS ACTIVOS (IGNORA CEROS Y DÍAS FUTUROS)
         const diasValidos = [];
         const minutosValidos = [];
         const llamadasValidas = [];
 
-        (data.diarioCompleto || []).forEach(item => {
-          let diaRaw = (item.dia || "").toString().trim();
-          let minRaw = (item.minutos || "").toString().trim();
-          let recRaw = (item.recibidas || "").toString().trim();
+        for (let i = 0; i < diario.dias.length; i++) {
+          let diaRaw = (diario.dias[i] || "").toString().trim();
+          let minRaw = (diario.minutos[i] || "").toString().trim();
+          let recRaw = (diario.recibidas[i] || "").toString().trim();
 
-          // Ignorar vacíos, encabezados o la palabra total
-          if (!diaRaw || diaRaw.toLowerCase().includes("total") || diaRaw.toLowerCase().includes("fecha")) {
-            return;
-          }
+          if (!diaRaw || diaRaw.toLowerCase().includes("total")) continue;
 
           let numMin = parseSafe(minRaw);
 
-          // FILTRO CLAVE: Solo aceptar días que tengan minutos reales mayores a 0
+          // Solo incluir días que tengan minutos reales (> 0)
           if (numMin > 0) {
             let diaLimpio = diaRaw.split("/")[0].split("-")[0].trim();
             if (diaLimpio.length === 1) diaLimpio = "0" + diaLimpio;
@@ -186,7 +184,7 @@
             minutosValidos.push(minRaw);
             llamadasValidas.push(recRaw);
           }
-        });
+        }
 
         renderizarGraficos(diasValidos, minutosValidos, llamadasValidas);
 
@@ -196,7 +194,7 @@
     }
 
     function renderizarGraficos(dias, minutos, llamadas) {
-      // 1. Gráfico Diario de Minutos Atendidos
+      // 1. Gráfico de Minutos Atendidos por Día
       const ctxDiario = document.getElementById('chartDiario').getContext('2d');
       if(chartDiarioInstance) chartDiarioInstance.destroy();
 
@@ -232,7 +230,7 @@
         }
       });
 
-      // 2. Gráfico Diario de Llamadas Recibidas
+      // 2. Gráfico de Llamadas Recibidas por Día
       const ctxLlamadas = document.getElementById('chartLlamadas').getContext('2d');
       if(chartLlamadasInstance) chartLlamadasInstance.destroy();
 
