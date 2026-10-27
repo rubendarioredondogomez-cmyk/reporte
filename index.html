@@ -161,21 +161,24 @@
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
-        // FILTRADO ESTRICTO DE DÍAS ACTIVOS (IGNORA CEROS Y DÍAS FUTUROS)
+        // PROCESAMIENTO Y FILTRADO LOCAL
         const diasValidos = [];
         const minutosValidos = [];
         const llamadasValidas = [];
 
-        for (let i = 0; i < diario.dias.length; i++) {
+        const totalDias = (diario.dias || []).length;
+        for (let i = 0; i < totalDias; i++) {
           let diaRaw = (diario.dias[i] || "").toString().trim();
           let minRaw = (diario.minutos[i] || "").toString().trim();
           let recRaw = (diario.recibidas[i] || "").toString().trim();
 
-          if (!diaRaw || diaRaw.toLowerCase().includes("total")) continue;
+          if (!diaRaw || diaRaw.toLowerCase().includes("total") || diaRaw.toLowerCase().includes("fecha")) {
+            continue;
+          }
 
           let numMin = parseSafe(minRaw);
 
-          // Solo incluir días que tengan minutos reales (> 0)
+          // FILTRAR SOLO DÍAS QUE TENGAN MINUTOS > 0
           if (numMin > 0) {
             let diaLimpio = diaRaw.split("/")[0].split("-")[0].trim();
             if (diaLimpio.length === 1) diaLimpio = "0" + diaLimpio;
@@ -194,7 +197,7 @@
     }
 
     function renderizarGraficos(dias, minutos, llamadas) {
-      // 1. Gráfico de Minutos Atendidos por Día
+      // 1. Minutos Atendidos por Día
       const ctxDiario = document.getElementById('chartDiario').getContext('2d');
       if(chartDiarioInstance) chartDiarioInstance.destroy();
 
@@ -230,7 +233,7 @@
         }
       });
 
-      // 2. Gráfico de Llamadas Recibidas por Día
+      // 2. Llamadas Recibidas por Día
       const ctxLlamadas = document.getElementById('chartLlamadas').getContext('2d');
       if(chartLlamadasInstance) chartLlamadasInstance.destroy();
 
