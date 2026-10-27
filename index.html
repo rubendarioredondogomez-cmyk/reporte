@@ -1,93 +1,5 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Dashboard Ejecutivo de Operaciones *611</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-slate-100 text-slate-800 p-4 md:p-6">
-  
-  <!-- Encabezado Corporativo -->
-  <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-5 bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-3">
-    <div>
-      <h1 class="text-lg font-bold text-blue-700">EPSDC-ATE "JOSEFA CAMEJO"</h1>
-      <p class="text-xs md:text-sm text-slate-500">Reporte Estadístico de Gestión *611 — Acumulado al <span id="fecha-corte" class="font-semibold text-slate-700">...</span></p>
-    </div>
-    <div class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-semibold border border-emerald-200">
-      ● En vivo (Google Sheets Connected)
-    </div>
-  </header>
-
-  <!-- Tarjetas de KPI -->
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-      <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">Minutos Totales</span>
-      <p id="kpi-minutos-totales" class="text-lg font-bold text-slate-900 mt-1">0</p>
-    </div>
-    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-      <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">% Alcance (Meta 373.500)</span>
-      <p id="kpi-alcance" class="text-lg font-bold text-emerald-600 mt-1">0%</p>
-    </div>
-    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-      <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">TMO Prepago</span>
-      <p id="kpi-tmo-prepago" class="text-lg font-bold text-blue-600 mt-1">0</p>
-    </div>
-    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-      <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">TMO Suspensiones</span>
-      <p id="kpi-tmo-susp" class="text-lg font-bold text-amber-600 mt-1">0</p>
-    </div>
-    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-      <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">% Abandono Prepago</span>
-      <p id="kpi-abandono-prepago" class="text-lg font-bold text-sky-600 mt-1">0%</p>
-    </div>
-    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-      <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider block">% Abandono Susp.</span>
-      <p id="kpi-abandono-susp" class="text-lg font-bold text-rose-600 mt-1">0%</p>
-    </div>
-  </div>
-
-  <!-- Sección de Gráficos -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-      <h3 class="text-xs font-bold text-slate-700 mb-3">📅 Minutos Atendidos por Día</h3>
-      <div class="relative h-56"><canvas id="chartDiario"></canvas></div>
-    </div>
-    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-      <h3 class="text-xs font-bold text-slate-700 mb-3">📞 Llamadas Recibidas por Día</h3>
-      <div class="relative h-56"><canvas id="chartLlamadas"></canvas></div>
-    </div>
-  </div>
-
-  <!-- Tabla Resumen Consolidado -->
-  <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-    <div class="p-3 bg-slate-50 border-b border-slate-200">
-      <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Resumen Consolidado de Métricas Operativas</h3>
-    </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
-        <thead>
-          <tr class="bg-slate-900 text-white border-b border-slate-800">
-            <th class="p-2.5">Servicio</th>
-            <th class="p-2.5">Precisión Pronóstico</th>
-            <th class="p-2.5">Llamadas Recibidas</th>
-            <th class="p-2.5">Minutos Atendidos</th>
-            <th class="p-2.5">% Abandono</th>
-            <th class="p-2.5">Nivel de Servicio</th>
-            <th class="p-2.5">TMO (Seg)</th>
-            <th class="p-2.5">Agentes</th>
-            <th class="p-2.5">Adhesión</th>
-            <th class="p-2.5">Productividad</th>
-            <th class="p-2.5">Ocupación</th>
-          </tr>
-        </thead>
-        <tbody id="tabla-body" class="divide-y divide-slate-200 text-slate-700"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <script>
-    const API_URL ="https://script.google.com/macros/s/AKfycbwzxy0CmrLBWRT3Y9riK2n-PLbQZxXKwbu463JVUL08tfqQqWgE3qWWgOlN7-3Q3Gyq/exec";
+<script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwzxy0CmrLBWRT3Y9rik2n-PLbQZzXKwbu463JVUL08tfqQqWgE3qWWgOIN7-3Q3Gyq/exec";
 
     let chartDiarioInstance = null;
     let chartLlamadasInstance = null;
@@ -161,10 +73,119 @@
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
-        // 🛡️ FILTRADO BLINDADO Y ANTI-DUPLICADOS EN EL NAVEGADOR
+        // Filtrado blindado anti-duplicados
         const diasValidos = [];
         const minutosValidos = [];
         const llamadasValidas = [];
         const diasVistos = new Set();
 
-        const totalFilas = (diario.dias || []).length
+        const totalFilas = (diario.dias || []).length;
+        for (let i = 0; i < totalFilas; i++) {
+          let diaRaw = (diario.dias[i] || "").toString().trim();
+          let minRaw = (diario.minutos[i] || "").toString().trim();
+          let recRaw = (diario.recibidas[i] || "").toString().trim();
+
+          if (!diaRaw || diaRaw.toLowerCase().includes("total") || diaRaw.toLowerCase().includes("fecha")) {
+            continue;
+          }
+
+          let numMin = parseSafe(minRaw);
+          let numRec = parseSafe(recRaw);
+
+          let matchDia = diaRaw.match(/\d+/);
+          if (!matchDia) continue;
+          let diaNum = parseInt(matchDia[0], 10);
+
+          if (diaNum >= 1 && diaNum <= 31 && !diasVistos.has(diaNum)) {
+            if (numMin > 0 || numRec > 0) {
+              diasVistos.add(diaNum);
+              let diaStr = diaNum < 10 ? "0" + diaNum : diaNum.toString();
+
+              diasValidos.push(diaStr);
+              minutosValidos.push(minRaw);
+              llamadasValidas.push(recRaw);
+            }
+          }
+        }
+
+        renderizarGraficos(diasValidos, minutosValidos, llamadasValidas);
+
+      } catch (error) {
+        console.error("Error al cargar los datos:", error);
+      }
+    }
+
+    function renderizarGraficos(dias, minutos, llamadas) {
+      const ctxDiario = document.getElementById('chartDiario').getContext('2d');
+      if(chartDiarioInstance) chartDiarioInstance.destroy();
+
+      const valoresMinutos = minutos.map(m => parseSafe(m));
+
+      chartDiarioInstance = new Chart(ctxDiario, {
+        type: 'bar',
+        data: {
+          labels: dias,
+          datasets: [{
+            label: 'Minutos Atendidos',
+            data: valoresMinutos,
+            backgroundColor: '#2563eb',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { 
+              beginAtZero: true, 
+              grid: { color: '#e2e8f0' }, 
+              ticks: { 
+                color: '#64748b', 
+                font: { size: 10 },
+                callback: function(value) { return value.toLocaleString('es-ES'); }
+              } 
+            },
+            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      const ctxLlamadas = document.getElementById('chartLlamadas').getContext('2d');
+      if(chartLlamadasInstance) chartLlamadasInstance.destroy();
+
+      const valoresLlamadas = llamadas.map(l => parseSafe(l));
+
+      chartLlamadasInstance = new Chart(ctxLlamadas, {
+        type: 'bar',
+        data: {
+          labels: dias,
+          datasets: [{
+            label: 'Llamadas Recibidas',
+            data: valoresLlamadas,
+            backgroundColor: '#059669',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { 
+              beginAtZero: true, 
+              grid: { color: '#e2e8f0' }, 
+              ticks: { 
+                color: '#64748b', 
+                font: { size: 10 },
+                callback: function(value) { return value.toLocaleString('es-ES'); }
+              } 
+            },
+            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    cargarDatos();
+  </script>
