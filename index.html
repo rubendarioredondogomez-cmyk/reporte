@@ -110,9 +110,6 @@
         const response = await fetch(API_URL);
         const data = await response.json();
 
-        // LOG DE CONTROL: Muestra en la consola de F12 los datos exactos recibidos de Sheets
-        console.log("DATOS RECIBIDOS DESDE GOOGLE SHEETS:", data);
-
         document.getElementById('fecha-corte').innerText = data.fecha || 'N/A';
 
         const prep = data.prepago || {};
@@ -164,28 +161,7 @@
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
-        // PROCESAMIENTO DIRECTO SIN BLOQUEOS
-        const diasValidos = [];
-        const minutosValidos = [];
-        const llamadasValidas = [];
-
-        const totalItems = (diario.dias || []).length;
-        for (let i = 0; i < totalItems; i++) {
-          let diaRaw = (diario.dias[i] || "").toString().trim();
-          let minRaw = (diario.minutos[i] || "").toString().trim();
-          let recRaw = (diario.recibidas[i] || "").toString().trim();
-
-          if (!diaRaw) continue;
-
-          let matchDia = diaRaw.match(/\d+/);
-          let diaStr = matchDia ? (parseInt(matchDia[0], 10) < 10 ? "0" + parseInt(matchDia[0], 10) : matchDia[0]) : diaRaw;
-
-          diasValidos.push(diaStr);
-          minutosValidos.push(minRaw);
-          llamadasValidas.push(recRaw);
-        }
-
-        renderizarGraficos(diasValidos, minutosValidos, llamadasValidas);
+        renderizarGraficos(diario.dias || [], diario.minutos || [], diario.recibidas || []);
 
       } catch (error) {
         console.error("Error al cargar los datos:", error);
