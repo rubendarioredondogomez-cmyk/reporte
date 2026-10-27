@@ -102,7 +102,10 @@
           str = str.replace('.', '');
         }
       }
-      return parseFloat(str) || 0;
+      let num = parseFloat(str) || 0;
+      // Protección contra números seriales de fecha de Excel/Sheets que superan los 40000 por error
+      if (num > 40000 && str.length > 6 && !str.includes('.')) return 0;
+      return num;
     }
 
     async function cargarDatos() {
@@ -161,7 +164,7 @@
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
-        // Filtrado blindado anti-duplicados
+        // 🛡️ FILTRADO ESTRICTO HASTA EL DÍA 24 Y ANTI-DUPLICADOS
         const diasValidos = [];
         const minutosValidos = [];
         const llamadasValidas = [];
@@ -177,14 +180,15 @@
             continue;
           }
 
-          let numMin = parseSafe(minRaw);
-          let numRec = parseSafe(recRaw);
-
           let matchDia = diaRaw.match(/\d+/);
           if (!matchDia) continue;
           let diaNum = parseInt(matchDia[0], 10);
 
-          if (diaNum >= 1 && diaNum <= 31 && !diasVistos.has(diaNum)) {
+          // RESTRICCIÓN CLAVE: Solo aceptar días entre 1 y 24 (corte actual), sin duplicados
+          if (diaNum >= 1 && diaNum <= 24 && !diasVistos.has(diaNum)) {
+            let numMin = parseSafe(minRaw);
+            let numRec = parseSafe(recRaw);
+
             if (numMin > 0 || numRec > 0) {
               diasVistos.add(diaNum);
               let diaStr = diaNum < 10 ? "0" + diaNum : diaNum.toString();
@@ -204,6 +208,7 @@
     }
 
     function renderizarGraficos(dias, minutos, llamadas) {
+      // 1. Minutos Atendidos por Día
       const ctxDiario = document.getElementById('chartDiario').getContext('2d');
       if(chartDiarioInstance) chartDiarioInstance.destroy();
 
@@ -239,6 +244,7 @@
         }
       });
 
+      // 2. Llamadas Recibidas por Día
       const ctxLlamadas = document.getElementById('chartLlamadas').getContext('2d');
       if(chartLlamadasInstance) chartLlamadasInstance.destroy();
 
