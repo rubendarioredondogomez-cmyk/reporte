@@ -161,88 +161,10 @@
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
-        renderizarGraficos(diario.dias || [], diario.minutos || [], diario.recibidas || []);
+        // 🛡️ FILTRADO BLINDADO Y ANTI-DUPLICADOS EN EL NAVEGADOR
+        const diasValidos = [];
+        const minutosValidos = [];
+        const llamadasValidas = [];
+        const diasVistos = new Set();
 
-      } catch (error) {
-        console.error("Error al cargar los datos:", error);
-      }
-    }
-
-    function renderizarGraficos(dias, minutos, llamadas) {
-      // 1. Minutos Atendidos por Día
-      const ctxDiario = document.getElementById('chartDiario').getContext('2d');
-      if(chartDiarioInstance) chartDiarioInstance.destroy();
-
-      const valoresMinutos = minutos.map(m => parseSafe(m));
-
-      chartDiarioInstance = new Chart(ctxDiario, {
-        type: 'bar',
-        data: {
-          labels: dias,
-          datasets: [{
-            label: 'Minutos Atendidos',
-            data: valoresMinutos,
-            backgroundColor: '#2563eb',
-            borderRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: { 
-              beginAtZero: true, 
-              grid: { color: '#e2e8f0' }, 
-              ticks: { 
-                color: '#64748b', 
-                font: { size: 10 },
-                callback: function(value) { return value.toLocaleString('es-ES'); }
-              } 
-            },
-            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
-          },
-          plugins: { legend: { display: false } }
-        }
-      });
-
-      // 2. Llamadas Recibidas por Día
-      const ctxLlamadas = document.getElementById('chartLlamadas').getContext('2d');
-      if(chartLlamadasInstance) chartLlamadasInstance.destroy();
-
-      const valoresLlamadas = llamadas.map(l => parseSafe(l));
-
-      chartLlamadasInstance = new Chart(ctxLlamadas, {
-        type: 'bar',
-        data: {
-          labels: dias,
-          datasets: [{
-            label: 'Llamadas Recibidas',
-            data: valoresLlamadas,
-            backgroundColor: '#059669',
-            borderRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: { 
-              beginAtZero: true, 
-              grid: { color: '#e2e8f0' }, 
-              ticks: { 
-                color: '#64748b', 
-                font: { size: 10 },
-                callback: function(value) { return value.toLocaleString('es-ES'); }
-              } 
-            },
-            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
-          },
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-
-    cargarDatos();
-  </script>
-</body>
-</html>
+        const totalFilas = (diario.dias || []).length
