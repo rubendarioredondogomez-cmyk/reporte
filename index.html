@@ -161,35 +161,7 @@
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
-        // PROCESAMIENTO Y FILTRADO LOCAL
-        const diasValidos = [];
-        const minutosValidos = [];
-        const llamadasValidas = [];
-
-        const totalDias = (diario.dias || []).length;
-        for (let i = 0; i < totalDias; i++) {
-          let diaRaw = (diario.dias[i] || "").toString().trim();
-          let minRaw = (diario.minutos[i] || "").toString().trim();
-          let recRaw = (diario.recibidas[i] || "").toString().trim();
-
-          if (!diaRaw || diaRaw.toLowerCase().includes("total") || diaRaw.toLowerCase().includes("fecha")) {
-            continue;
-          }
-
-          let numMin = parseSafe(minRaw);
-
-          // FILTRAR SOLO DÍAS QUE TENGAN MINUTOS > 0
-          if (numMin > 0) {
-            let diaLimpio = diaRaw.split("/")[0].split("-")[0].trim();
-            if (diaLimpio.length === 1) diaLimpio = "0" + diaLimpio;
-
-            diasValidos.push(diaLimpio);
-            minutosValidos.push(minRaw);
-            llamadasValidas.push(recRaw);
-          }
-        }
-
-        renderizarGraficos(diasValidos, minutosValidos, llamadasValidas);
+        renderizarGraficos(diario.dias || [], diario.minutos || [], diario.recibidas || []);
 
       } catch (error) {
         console.error("Error al cargar los datos:", error);
