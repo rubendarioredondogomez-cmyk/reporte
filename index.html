@@ -54,8 +54,8 @@
       <div class="relative h-56"><canvas id="chartDiario"></canvas></div>
     </div>
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-      <h3 class="text-xs font-bold text-slate-700 mb-3">📈 Ocupación vs. Productividad (%)</h3>
-      <div class="relative h-56"><canvas id="chartOcupacion"></canvas></div>
+      <h3 class="text-xs font-bold text-slate-700 mb-3">📞 Llamadas Recibidas por Día</h3>
+      <div class="relative h-56"><canvas id="chartLlamadas"></canvas></div>
     </div>
   </div>
 
@@ -90,7 +90,7 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbwzxy0CmrLBWRT3Y9riK2n-PLbQZxXKwbu463JVUL08tfqQqWgE3qWWgOlN7-3Q3Gyq/exec";
 
     let chartDiarioInstance = null;
-    let chartOcupacionInstance = null;
+    let chartLlamadasInstance = null;
 
     function parseSafe(val) {
       if (!val) return 0;
@@ -160,16 +160,17 @@
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
-        // PROCESAMIENTO Y FILTRADO LOCAL DESDE LAS FILAS CRUDAS
+        // PROCESAMIENTO Y FILTRADO LOCAL DE DÍAS, MINUTOS Y LLAMADAS
         const diasValidos = [];
         const minutosValidos = [];
+        const llamadasValidas = [];
 
-        // data.filasCrudas contiene filas donde index 0 = Columna C (Fecha) e index 11 = Columna N (Minutos)
-        (data.filasCrudas || []).forEach(row => {
-          let diaRaw = (row[0] || "").toString().trim();
-          let minRaw = (row[11] || "").toString().trim();
+        (data.diarioCompleto || []).forEach(item => {
+          let diaRaw = (item.dia || "").toString().trim();
+          let minRaw = (item.minutos || "").toString().trim();
+          let recRaw = (item.recibidas || "").toString().trim();
 
-          // Ignorar filas vacías, encabezados o la palabra "Total"
+          // Ignorar vacíos, encabezados o la palabra total
           if (!diaRaw || diaRaw.toLowerCase().includes("total") || diaRaw.toLowerCase().includes("fecha")) {
             return;
           }
@@ -183,21 +184,23 @@
 
             diasValidos.push(diaLimpio);
             minutosValidos.push(minRaw);
+            llamadasValidas.push(recRaw);
           }
         });
 
-        renderizarGraficos(prep, susp, diasValidos, minutosValidos);
+        renderizarGraficos(diasValidos, minutosValidos, llamadasValidas);
 
       } catch (error) {
         console.error("Error al cargar los datos:", error);
       }
     }
 
-    function renderizarGraficos(prep, susp, dias, minutos) {
+    function renderizarGraficos(dias, minutos, llamadas) {
+      // 1. Gráfico Diario de Minutos Atendidos
       const ctxDiario = document.getElementById('chartDiario').getContext('2d');
       if(chartDiarioInstance) chartDiarioInstance.destroy();
 
-      const valoresNumericos = minutos.map(m => parseSafe(m));
+      const valoresMinutos = minutos.map(m => parseSafe(m));
 
       chartDiarioInstance = new Chart(ctxDiario, {
         type: 'bar',
@@ -205,7 +208,7 @@
           labels: dias,
           datasets: [{
             label: 'Minutos Atendidos',
-            data: valoresNumericos,
+            data: valoresMinutos,
             backgroundColor: '#2563eb',
             borderRadius: 4
           }]
@@ -229,30 +232,36 @@
         }
       });
 
-      const pOcup = parseSafe(prep.ocupacion);
-      const pProd = parseSafe(prep.productividad);
-      const sOcup = parseSafe(susp.ocupacion);
-      const sProd = parseSafe(susp.productividad);
+      // 2. Gráfico Diario de Llamadas Recibidas
+      const ctxLlamadas = document.getElementById('chartLlamadas').getContext('2d');
+      if(chartLlamadasInstance) chartLlamadasInstance.destroy();
 
-      const ctxOcupacion = document.getElementById('chartOcupacion').getContext('2d');
-      if(chartOcupacionInstance) chartOcupacionInstance.destroy();
+      const valoresLlamadas = llamadas.map(l => parseSafe(l));
 
-      chartOcupacionInstance = new Chart(ctxOcupacion, {
+      chartLlamadasInstance = new Chart(ctxLlamadas, {
         type: 'bar',
         data: {
-          labels: ['Prepago (Ocupación)', 'Prepago (Productividad)', 'Suspensiones (Ocupación)', 'Suspensiones (Productividad)'],
+          labels: dias,
           datasets: [{
-            label: 'Porcentaje (%)',
-            data: [pOcup, pProd, sOcup, sProd],
-            backgroundColor: ['#059669', '#34d399', '#d97706', '#fbbf24'],
-            borderRadius: 6
+            label: 'Llamadas Recibidas',
+            data: valoresLlamadas,
+            backgroundColor: '#059669',
+            borderRadius: 4
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            y: { beginAtZero: true, max: 100, grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } },
+            y: { 
+              beginAtZero: true, 
+              grid: { color: '#e2e8f0' }, 
+              ticks: { 
+                color: '#64748b', 
+                font: { size: 10 },
+                callback: function(value) { return value.toLocaleString('es-ES'); }
+              } 
+            },
             x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
           },
           plugins: { legend: { display: false } }
