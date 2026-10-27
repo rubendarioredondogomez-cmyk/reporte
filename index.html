@@ -87,7 +87,7 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwzxy0CmrLBWRT3Y9riK2n-PLbQZxXKwbu463JVUL08tfqQqWgE3qWWgOlN7-3Q3Gyq/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwzxy0CmrLBWRT3Y9rik2n-PLbQZzXKwbu463JVUL08tfqQqWgE3qWWgOIN7-3Q3Gyq/exec";
 
     let chartDiarioInstance = null;
     let chartLlamadasInstance = null;
@@ -102,16 +102,16 @@
           str = str.replace('.', '');
         }
       }
-      let num = parseFloat(str) || 0;
-      // Protección contra números seriales de fecha de Excel/Sheets que superan los 40000 por error
-      if (num > 40000 && str.length > 6 && !str.includes('.')) return 0;
-      return num;
+      return parseFloat(str) || 0;
     }
 
     async function cargarDatos() {
       try {
         const response = await fetch(API_URL);
         const data = await response.json();
+
+        // LOG DE CONTROL: Muestra en la consola de F12 los datos exactos recibidos de Sheets
+        console.log("DATOS RECIBIDOS DESDE GOOGLE SHEETS:", data);
 
         document.getElementById('fecha-corte').innerText = data.fecha || 'N/A';
 
@@ -164,40 +164,25 @@
         document.getElementById('kpi-abandono-prepago').innerText = prep.abandono || '0%';
         document.getElementById('kpi-abandono-susp').innerText = susp.abandono || '0%';
 
-        // 🛡️ FILTRADO ESTRICTO HASTA EL DÍA 24 Y ANTI-DUPLICADOS
+        // PROCESAMIENTO DIRECTO SIN BLOQUEOS
         const diasValidos = [];
         const minutosValidos = [];
         const llamadasValidas = [];
-        const diasVistos = new Set();
 
-        const totalFilas = (diario.dias || []).length;
-        for (let i = 0; i < totalFilas; i++) {
+        const totalItems = (diario.dias || []).length;
+        for (let i = 0; i < totalItems; i++) {
           let diaRaw = (diario.dias[i] || "").toString().trim();
           let minRaw = (diario.minutos[i] || "").toString().trim();
           let recRaw = (diario.recibidas[i] || "").toString().trim();
 
-          if (!diaRaw || diaRaw.toLowerCase().includes("total") || diaRaw.toLowerCase().includes("fecha")) {
-            continue;
-          }
+          if (!diaRaw) continue;
 
           let matchDia = diaRaw.match(/\d+/);
-          if (!matchDia) continue;
-          let diaNum = parseInt(matchDia[0], 10);
+          let diaStr = matchDia ? (parseInt(matchDia[0], 10) < 10 ? "0" + parseInt(matchDia[0], 10) : matchDia[0]) : diaRaw;
 
-          // RESTRICCIÓN CLAVE: Solo aceptar días entre 1 y 24 (corte actual), sin duplicados
-          if (diaNum >= 1 && diaNum <= 24 && !diasVistos.has(diaNum)) {
-            let numMin = parseSafe(minRaw);
-            let numRec = parseSafe(recRaw);
-
-            if (numMin > 0 || numRec > 0) {
-              diasVistos.add(diaNum);
-              let diaStr = diaNum < 10 ? "0" + diaNum : diaNum.toString();
-
-              diasValidos.push(diaStr);
-              minutosValidos.push(minRaw);
-              llamadasValidas.push(recRaw);
-            }
-          }
+          diasValidos.push(diaStr);
+          minutosValidos.push(minRaw);
+          llamadasValidas.push(recRaw);
         }
 
         renderizarGraficos(diasValidos, minutosValidos, llamadasValidas);
